@@ -1,8 +1,16 @@
 from fastapi import FastAPI
+from random import randint
+from captcha_tools.make_image import make_captcha_image
+
 
 app = FastAPI()
 
 
-@app.get("/")
+@app.get("/make")
 def read_root():
-    return {"Hello": "World"}
+    first = randint(10, 99)
+    second = randint(10, 99)
+
+    make_captcha_image(f"{first} + {second}")
+
+    return {"make": True}
