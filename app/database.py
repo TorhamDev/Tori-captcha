@@ -1,17 +1,30 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from contextvars import ContextVar
+
+import peewee
+
+db_state_default = {
+    "closed": None,
+    "conn": None,
+    "ctx": None,
+    "transactions": None,
+}
+db_state = ContextVar("db_state", default=db_state_default.copy())
 
 
-DATABASE_URL = "sqlite:///./db.sqlite"
+class PeeweeConnectionState(peewee._ConnectionState):
+    def __init__(self, **kwargs):
+        super().__setattr__("_state", db_state)
+        super().__init__(**kwargs)
 
-engine = create_engine(DATABASE_URL)
+    def __setattr__(self, name, value):
+        self._state.get()[name] = value
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    def __getattr__(self, name):
+        return self._state.get()[name]
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+db = peewee.SqliteDatabase('./app.db', pragmas={
+    'journal_mode': 'wal',
+    'cache_size': -1024 * 64}
+)
+db._state = PeeweeConnectionState()

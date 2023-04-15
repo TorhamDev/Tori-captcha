@@ -1,13 +1,17 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+import peewee
+
+from app.database import db
 
 
-Base = declarative_base()
+class Users(peewee.Model):
+    name = peewee.CharField(max_length=150)
+    email = peewee.CharField()
+    password = peewee.CharField
+
+    class Meta:
+        database = db
 
 
-class User(Base):
-    __tablename__ = "users"
-    id: int = Column(Integer, primary_key=True, index=True)
-    name: str = Column(String(50), index=True)
-    email: str = Column(String(50), unique=True, index=True)
-    password: str = Column(String(50))
+db.connect()
+db.create_tables([Users], safe=True)
+db.close()
