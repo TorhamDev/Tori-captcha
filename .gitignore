@@ -127,3 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# sqlite db peewee orm
+*.db
+*.db-shm
+*.db-wal
