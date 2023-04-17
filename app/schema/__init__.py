@@ -1,1 +1,1 @@
-from .users import UserCreate  # noqa
+from .users import UserCreate, UserDataResponse  # noqa
