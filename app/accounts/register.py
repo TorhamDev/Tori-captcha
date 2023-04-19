@@ -2,7 +2,6 @@ from fastapi import APIRouter
 from app.models import Users
 from app.schema import UserCreate, UserDataResponse
 from app.errors import UserAlreadyExists
-from app.validations import validate_email
 from hashlib import sha256
 
 router = APIRouter()
