@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 from app.models import Users
 from app.schema import UserCreate, UserDataResponse
-from app.errors import UserAlreadyExists
+from app.errors import UserAlreadyExists, InvalidEmailAddress
+from app.validations import validate_email
 from hashlib import sha256
 
 router = APIRouter()
@@ -9,6 +10,10 @@ router = APIRouter()
 
 @router.post("/register")
 def register(data: UserCreate) -> UserDataResponse:
+
+    if not validate_email(data.email):
+        raise InvalidEmailAddress
+
     user = Users.select().where(Users.email == data.email)
 
     if user.exists():
