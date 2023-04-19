@@ -5,7 +5,7 @@ from app.database import db
 
 class Users(peewee.Model):
     name = peewee.CharField(max_length=150)
-    email = peewee.CharField()
+    email = peewee.CharField(unique=True)
     password = peewee.CharField()
 
     class Meta:
