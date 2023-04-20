@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from app.models import Users
 from app.schema import UserCreate, UserDataResponse
 from app.errors import UserAlreadyExists
-from hashlib import sha256
+from app.utils import get_hashed_password
 
 router = APIRouter()
 
@@ -15,9 +15,7 @@ def register(data: UserCreate) -> UserDataResponse:
     if user.exists():
         raise UserAlreadyExists
 
-    password = sha256()
-    password.update(data.password.encode())
-    data.password = password.hexdigest()
+    data.password = get_hashed_password(data.password)
     user = Users(**dict(data))
     user.save()
 
