@@ -9,7 +9,7 @@ class UserCreate(BaseModel):
 
 class UserDataResponse(BaseModel):
     name: str
-    email: str
+    email: EmailStr
 
 
 class UserLoginData(BaseModel):
