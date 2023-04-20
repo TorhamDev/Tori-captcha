@@ -1,1 +1,6 @@
-from .users import UserCreate, UserDataResponse, UserLoginData  # noqa
+from .users import (
+    UserCreate,
+    UserDataResponse,
+    UserLoginData,
+    JwtTokensResponse,
+)

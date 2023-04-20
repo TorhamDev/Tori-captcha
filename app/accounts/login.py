@@ -1,13 +1,13 @@
 from fastapi import APIRouter
 from app.models import Users
-from app.schema import UserLoginData
+from app.schema import UserLoginData, JwtTokensResponse
 from app.errors import EmailOrPasswordInvalid
-from app.utils import verify_password
+from app.utils import verify_password, create_jwt_token
 
 router = APIRouter()
 
 
-@router.post("/login")
+@router.post("/login", response_model=JwtTokensResponse)
 def login(data: UserLoginData):
 
     user = Users.select().where(Users.email == data.email)
@@ -23,4 +23,7 @@ def login(data: UserLoginData):
     if not password_is_correct:
         raise EmailOrPasswordInvalid
 
-    return {"ok": "duok"}
+    return {
+        "access_token": create_jwt_token(data.email),
+        "refresh_token": create_jwt_token(data.email, is_refresh=True),
+    }
