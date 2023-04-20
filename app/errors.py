@@ -11,3 +11,9 @@ class InvalidEmailAddress(HTTPException):
     def __init__(self, status_code=None, detail=None, headers=None) -> None:
         self.status_code = 400
         self.detail = "User email is not a valid email."
+
+
+class EmailOrPasswordInvalid(HTTPException):
+    def __init__(self, status_code=None, detail=None, headers=None) -> None:
+        self.status_code = 400
+        self.detail = "Email or password is invalid."
