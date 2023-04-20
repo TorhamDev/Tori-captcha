@@ -7,8 +7,8 @@ from app.utils import get_hashed_password
 router = APIRouter()
 
 
-@router.post("/register")
-def register(data: UserCreate) -> UserDataResponse:
+@router.post("/register", response_model=UserDataResponse)
+def register(data: UserCreate):
 
     user = Users.select().where(Users.email == data.email)
 
