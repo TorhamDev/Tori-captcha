@@ -1,6 +1,11 @@
 from contextvars import ContextVar
-
+from app.configs import REDIS_DB, REDIS_HOST, REDIS_PORT
 import peewee
+import redis
+
+# redis database connection
+redis_db = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+
 
 db_state_default = {
     "closed": None,
