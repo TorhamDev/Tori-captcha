@@ -29,9 +29,11 @@ def create_jwt_token(user_email: str, expires_delta: int = None, is_refresh: boo
         if is_refresh:
             # using refresh expire time (longer time)
             expires_delta = datetime.utcnow() + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+            secret_key = JWT_REFRESH_SECRET_KEY
         else:
             expires_delta = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            secret_key = JWT_SECRET_KEY
 
     to_encode = {"exp": expires_delta, "email": user_email}
-    encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, secret_key, ALGORITHM)
     return encoded_jwt
