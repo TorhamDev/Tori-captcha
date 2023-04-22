@@ -4,3 +4,4 @@ from .users import (
     UserLoginData,
     JwtTokensResponse,
 )
+from .captcha import CreateCaptchaResponse
