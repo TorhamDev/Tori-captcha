@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.accounts.register import router as register_router
 from app.accounts.login import router as login_router
-from app.captcha.create_captcha import router as captcha_router
+from app.captcha.captcha_apis import router as captcha_router
 
 app = FastAPI()
 
