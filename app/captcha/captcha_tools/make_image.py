@@ -19,5 +19,4 @@ def make_captcha_image(text: str) -> None:
     img.save(s, 'png')
     in_memory_file = s.getvalue()
 
-    with open("test.png", "wb") as f:
-        f.write(in_memory_file)
+    return in_memory_file
