@@ -1,10 +1,11 @@
 from fastapi import APIRouter
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
 from app.captcha.captcha_tools import make_captcha_image
 from app.database import redis_db
 from app.utils import get_unique_id_for_redis, make_random_captcha_question
 from app.schema import CreateCaptchaResponse
 from ast import literal_eval
+from io import BytesIO
 
 
 router = APIRouter()
@@ -30,4 +31,7 @@ def get_captcha(captcha_id):
     captcha_in_redis = redis_db.get(captcha_id)
     captcha_data = literal_eval(captcha_in_redis.decode())
 
-    return FileResponse(captcha_data["image"])
+    headers = {
+        'Content-Disposition': 'attachment; filename="captcha.png"',
+    }
+    return StreamingResponse(BytesIO(captcha_data["image"]), headers=headers, media_type="image/png")
