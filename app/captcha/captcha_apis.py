@@ -6,6 +6,7 @@ from app.utils import get_unique_id_for_redis, make_random_captcha_question
 from app.schema import CreateCaptchaResponse
 from ast import literal_eval
 from io import BytesIO
+from uuid import UUID
 
 
 router = APIRouter()
@@ -25,10 +26,10 @@ def create_captcha():
     return {"id": captcha_id}
 
 
-@router.get("/get-captcha/{captcha_id}/")
-def get_captcha(captcha_id):
+@router.get("/get-captcha/{captcha_id}/", response_class=StreamingResponse)
+def get_captcha(captcha_id: UUID):
 
-    captcha_in_redis = redis_db.get(captcha_id)
+    captcha_in_redis = redis_db.get(str(captcha_id))
     captcha_data = literal_eval(captcha_in_redis.decode())
 
     headers = {
