@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.models import Users
+from app.models import Users, CaptchaSettings
 from app.schema import UserCreate, UserDataResponse
 from app.errors import UserAlreadyExists
 from app.utils import get_hashed_password
@@ -17,6 +17,8 @@ def register(data: UserCreate):
 
     data.password = get_hashed_password(data.password)
     user = Users(**dict(data))
+    captcha_setting = CaptchaSettings().save()
+    user.captcha_settings = captcha_setting
     user.save()
 
     return data

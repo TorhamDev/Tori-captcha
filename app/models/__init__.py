@@ -1,1 +1,1 @@
-from .users import Users  # noqa
+from .users import Users, CaptchaSettings  # noqa
