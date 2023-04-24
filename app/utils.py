@@ -77,7 +77,7 @@ def make_random_captcha_question():
     return question_string, answer
 
 
-def check_user_auth(jwt_token):
+def check_user_auth(jwt_token) -> TokenPayload:
     try:
         payload = jwt.decode(
             jwt_token, JWT_SECRET_KEY, algorithms=[ALGORITHM]
@@ -96,3 +96,5 @@ def check_user_auth(jwt_token):
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    return token_data
