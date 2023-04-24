@@ -11,6 +11,9 @@ from app.configs import (
 from app.database import redis_db
 from uuid import uuid4
 from random import randint, choice
+from app.schema import TokenPayload
+from fastapi import HTTPException, status
+from pydantic import ValidationError
 
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -72,3 +75,24 @@ def make_random_captcha_question():
             answer = int_one * int_two
 
     return question_string, answer
+
+
+def check_user_auth(jwt_token):
+    try:
+        payload = jwt.decode(
+            jwt_token, JWT_SECRET_KEY, algorithms=[ALGORITHM]
+        )
+        token_data = TokenPayload(**payload)
+
+        if datetime.fromtimestamp(token_data.exp) < datetime.now():
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token expired",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except (jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
