@@ -2,6 +2,6 @@ from .users import (
     UserCreate,
     UserDataResponse,
     UserLoginData,
-    JwtTokensResponse,
 )
 from .captcha import CreateCaptchaResponse
+from .jwt_token import JwtTokensResponse, TokenPayload

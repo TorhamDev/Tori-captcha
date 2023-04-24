@@ -15,8 +15,3 @@ class UserDataResponse(BaseModel):
 class UserLoginData(BaseModel):
     email: EmailStr
     password: str
-
-
-class JwtTokensResponse(BaseModel):
-    access_token: str
-    refresh_token: str
