@@ -15,10 +15,6 @@ def register(data: UserCreate):
     if user.exists():
         raise UserAlreadyExists
 
-    data.password = get_hashed_password(data.password)
-    user = Users(**dict(data))
-    captcha_setting = CaptchaSettings().save()
-    user.captcha_settings = captcha_setting
-    user.save()
+    Users.create_new_user(data)
 
     return data
