@@ -9,6 +9,7 @@ from io import BytesIO
 from uuid import UUID
 from fastapi import Security
 from fastapi.security import APIKeyHeader
+from app.models import Users
 
 
 router = APIRouter()
@@ -17,7 +18,8 @@ router = APIRouter()
 @router.get("/create", response_model=CreateCaptchaResponse)
 def create_captcha(jwt_token=Security(APIKeyHeader(name="X-API-Key"))):
 
-    check_user_auth(jwt_token)
+    user_token = check_user_auth(jwt_token)
+    user_obj = Users.select().where(Users.email == user_token.email)[0]
 
     question, answer = make_random_captcha_question()
 
@@ -26,6 +28,8 @@ def create_captcha(jwt_token=Security(APIKeyHeader(name="X-API-Key"))):
     captcha_id = get_unique_id_for_redis()
 
     redis_db.set(captcha_id, str({"image": captcha_image, "answer": answer}))
+    captcha_exp_time = user_obj.captcha_settings.captcha_exp
+    redis_db.expire(captcha_id, captcha_exp_time)
 
     return {"id": captcha_id}
 
