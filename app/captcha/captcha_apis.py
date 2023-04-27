@@ -10,6 +10,7 @@ from uuid import UUID
 from fastapi import Security
 from fastapi.security import APIKeyHeader
 from app.models import Users
+from app.errors import CaptchaIsExpiredOrInvalidID
 
 
 router = APIRouter()
@@ -40,6 +41,10 @@ def get_captcha(captcha_id: UUID, jwt_token=Security(APIKeyHeader(name="X-API-Ke
     check_user_auth(jwt_token)
 
     captcha_in_redis = redis_db.get(str(captcha_id))
+    
+    if captcha_in_redis is None:
+        raise CaptchaIsExpiredOrInvalidID
+
     captcha_data = literal_eval(captcha_in_redis.decode())
 
     headers = {
