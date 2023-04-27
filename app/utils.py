@@ -9,11 +9,13 @@ from app.configs import (
     JWT_REFRESH_SECRET_KEY,
 )
 from app.database import redis_db
-from uuid import uuid4
+from uuid import uuid4, UUID
 from random import randint, choice
 from app.schema import TokenPayload
 from fastapi import HTTPException, status
 from pydantic import ValidationError
+from app.errors import CaptchaIsExpiredOrInvalidID
+from ast import literal_eval
 
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -98,3 +100,15 @@ def check_user_auth(jwt_token) -> TokenPayload:
         )
 
     return token_data
+
+
+def get_captcha_from_redis(captcha_id: UUID) -> dict:
+
+    captcha_in_redis = redis_db.get(str(captcha_id))
+
+    if captcha_in_redis is None:
+        raise CaptchaIsExpiredOrInvalidID
+
+    captcha_data = literal_eval(captcha_in_redis.decode())
+
+    return captcha_data
