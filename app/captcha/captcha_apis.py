@@ -2,15 +2,18 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from app.captcha.captcha_tools import make_captcha_image
 from app.database import redis_db
-from app.utils import get_unique_id_for_redis, make_random_captcha_question, check_user_auth
-from app.schema import CreateCaptchaResponse
-from ast import literal_eval
+from app.utils import (
+    get_unique_id_for_redis,
+    make_random_captcha_question,
+    check_user_auth,
+    get_captcha_from_redis,
+)
+from app.schema import CreateCaptchaResponse, CaptchaCheckAnswer
 from io import BytesIO
 from uuid import UUID
 from fastapi import Security
 from fastapi.security import APIKeyHeader
 from app.models import Users
-from app.errors import CaptchaIsExpiredOrInvalidID
 
 
 router = APIRouter()
@@ -40,14 +43,22 @@ def get_captcha(captcha_id: UUID, jwt_token=Security(APIKeyHeader(name="X-API-Ke
 
     check_user_auth(jwt_token)
 
-    captcha_in_redis = redis_db.get(str(captcha_id))
-    
-    if captcha_in_redis is None:
-        raise CaptchaIsExpiredOrInvalidID
-
-    captcha_data = literal_eval(captcha_in_redis.decode())
+    captcha_data = get_captcha_from_redis(captcha_id)
 
     headers = {
         'Content-Disposition': 'attachment; filename="captcha.png"',
     }
     return StreamingResponse(BytesIO(captcha_data["image"]), headers=headers, media_type="image/png")
+
+
+@router.get("/get-answer/{captcha_id}/{answer}/", response_model=CaptchaCheckAnswer)
+def get_captcha_answer(captcha_id: UUID, answer: int, jwt_token=Security(APIKeyHeader(name="X-API-Key"))):
+
+    check_user_auth(jwt_token)
+
+    captcha_data = get_captcha_from_redis(captcha_id)
+
+    if captcha_data["answer"] == answer:
+        return {"is_correct": True}
+
+    return {"is_correct": False}
