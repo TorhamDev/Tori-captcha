@@ -19,7 +19,7 @@ from app.models import Users
 router = APIRouter()
 
 
-@router.get("/create", response_model=CreateCaptchaResponse)
+@router.get("/create", response_model=CreateCaptchaResponse, tags=["captcha"])
 def create_captcha(jwt_token=Security(APIKeyHeader(name="X-API-Key"))):
 
     user_token = check_user_auth(jwt_token)
@@ -38,7 +38,7 @@ def create_captcha(jwt_token=Security(APIKeyHeader(name="X-API-Key"))):
     return {"id": captcha_id}
 
 
-@router.get("/get-captcha/{captcha_id}/", response_class=StreamingResponse)
+@router.get("/get-captcha/{captcha_id}/", response_class=StreamingResponse, tags=["captcha"])
 def get_captcha(captcha_id: UUID, jwt_token=Security(APIKeyHeader(name="X-API-Key"))):
 
     check_user_auth(jwt_token)
@@ -51,7 +51,7 @@ def get_captcha(captcha_id: UUID, jwt_token=Security(APIKeyHeader(name="X-API-Ke
     return StreamingResponse(BytesIO(captcha_data["image"]), headers=headers, media_type="image/png")
 
 
-@router.get("/get-answer/{captcha_id}/{answer}/", response_model=CaptchaCheckAnswer)
+@router.get("/get-answer/{captcha_id}/{answer}/", response_model=CaptchaCheckAnswer, tags=["captcha"])
 def get_captcha_answer(captcha_id: UUID, answer: int, jwt_token=Security(APIKeyHeader(name="X-API-Key"))):
 
     check_user_auth(jwt_token)
