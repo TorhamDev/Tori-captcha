@@ -7,7 +7,7 @@ from app.utils import verify_password, create_jwt_token
 router = APIRouter()
 
 
-@router.post("/login", response_model=JwtTokensResponse)
+@router.post("/login", response_model=JwtTokensResponse, tags=["accounts"])
 def login(data: UserLoginData):
 
     user = Users.select().where(Users.email == data.email)
