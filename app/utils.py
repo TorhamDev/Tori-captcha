@@ -1,6 +1,16 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import jwt
+from jose.exceptions import JWTError
+from uuid import uuid4, UUID
+from random import randint, choice
+from fastapi import HTTPException, status
+from pydantic import ValidationError
+
+from ast import literal_eval
+from app.schema import TokenPayload
+from app.database import redis_db
+from app.errors import CaptchaIsExpiredOrInvalidID
 from app.configs import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     JWT_SECRET_KEY,
@@ -8,14 +18,6 @@ from app.configs import (
     REFRESH_TOKEN_EXPIRE_MINUTES,
     JWT_REFRESH_SECRET_KEY,
 )
-from app.database import redis_db
-from uuid import uuid4, UUID
-from random import randint, choice
-from app.schema import TokenPayload
-from fastapi import HTTPException, status
-from pydantic import ValidationError
-from app.errors import CaptchaIsExpiredOrInvalidID
-from ast import literal_eval
 
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -29,23 +31,13 @@ def verify_password(password: str, hashed_pass: str) -> bool:
     return password_context.verify(password, hashed_pass)
 
 
-def create_jwt_token(
-    user_email: str, expires_delta: int = None, is_refresh: bool = False
-) -> str:
-    if expires_delta is not None:
-        expires_delta = datetime.utcnow() + expires_delta
-    else:
-        if is_refresh:
-            # using refresh expire time (longer time)
-            expires_delta = datetime.utcnow() + timedelta(
-                minutes=REFRESH_TOKEN_EXPIRE_MINUTES
-            )
-            secret_key = JWT_REFRESH_SECRET_KEY
-        else:
-            expires_delta = datetime.utcnow() + timedelta(
-                minutes=ACCESS_TOKEN_EXPIRE_MINUTES
-            )
-            secret_key = JWT_SECRET_KEY
+def create_jwt_token(user_email: str, is_refresh: bool = False) -> str:
+    expire_time = (
+        REFRESH_TOKEN_EXPIRE_MINUTES if is_refresh else ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    secret_key = JWT_REFRESH_SECRET_KEY if is_refresh else JWT_SECRET_KEY
+    
+    expires_delta = datetime.utcnow() + timedelta(minutes=expire_time)
 
     to_encode = {"exp": expires_delta, "email": user_email}
     encoded_jwt = jwt.encode(to_encode, secret_key, ALGORITHM)
@@ -84,7 +76,7 @@ def make_random_captcha_question():
     return question_string, answer
 
 
-def check_user_auth(jwt_token) -> TokenPayload:
+def check_user_auth(jwt_token: str) -> TokenPayload:
     try:
         payload = jwt.decode(jwt_token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenPayload(**payload)
@@ -95,7 +87,7 @@ def check_user_auth(jwt_token) -> TokenPayload:
                 detail="Token expired",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-    except (jwt.JWTError, ValidationError):
+    except (JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
