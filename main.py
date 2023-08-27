@@ -6,7 +6,7 @@ from app.captcha.captcha_apis import router as captcha_router
 app = FastAPI(
     title="Tori Captcha",
     description="A captcha system",
-    version="0.0.1"
+    version="0.0.1",
 )
 
 app.include_router(register_router)
