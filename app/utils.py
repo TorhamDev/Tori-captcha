@@ -36,7 +36,7 @@ def create_jwt_token(user_email: str, is_refresh: bool = False) -> str:
         REFRESH_TOKEN_EXPIRE_MINUTES if is_refresh else ACCESS_TOKEN_EXPIRE_MINUTES
     )
     secret_key = JWT_REFRESH_SECRET_KEY if is_refresh else JWT_SECRET_KEY
-    
+
     expires_delta = datetime.utcnow() + timedelta(minutes=expire_time)
 
     to_encode = {"exp": expires_delta, "email": user_email}
@@ -54,11 +54,11 @@ def get_unique_id_for_redis() -> str:
         return uuid
 
 
-def make_random_captcha_question():
+def make_random_captcha_question() -> tuple[str, int]:
     int_one = randint(0, 99)
     int_two = randint(0, 99)
-    answer = int
-    question_string = str
+    answer: int = 0
+    question_string: str = ""
 
     oprator = choice(["-", "+", "x"])
 
@@ -73,7 +73,7 @@ def make_random_captcha_question():
             question_string = f"{int_one} x {int_two}"
             answer = int_one * int_two
 
-    return question_string, answer
+    return (question_string, answer)
 
 
 def check_user_auth(jwt_token: str) -> TokenPayload:
