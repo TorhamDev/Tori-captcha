@@ -1,19 +1,20 @@
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
+from fastapi import Security
+from fastapi.security import APIKeyHeader
+from io import BytesIO
+from uuid import UUID
+
 from app.captcha.captcha_tools import make_captcha_image
 from app.database import redis_db
+from app.schema import CreateCaptchaResponse, CaptchaCheckAnswer
+from app.models import Users
 from app.utils import (
     get_unique_id_for_redis,
     make_random_captcha_question,
     check_user_auth,
     get_captcha_from_redis,
 )
-from app.schema import CreateCaptchaResponse, CaptchaCheckAnswer
-from io import BytesIO
-from uuid import UUID
-from fastapi import Security
-from fastapi.security import APIKeyHeader
-from app.models import Users
 
 
 router = APIRouter()
@@ -42,9 +43,7 @@ def create_captcha(jwt_token=Security(APIKeyHeader(name="X-API-Key"))):
     response_class=StreamingResponse,
     tags=["captcha"],
 )
-def get_captcha(
-    captcha_id: UUID, jwt_token=Security(APIKeyHeader(name="X-API-Key"))
-):
+def get_captcha(captcha_id: UUID, jwt_token=Security(APIKeyHeader(name="X-API-Key"))):
     check_user_auth(jwt_token)
 
     captcha_data = get_captcha_from_redis(captcha_id)

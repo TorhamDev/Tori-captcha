@@ -7,7 +7,7 @@ from app.utils import get_hashed_password
 
 class CaptchaSettings(peewee.Model):
     setting_id = peewee.PrimaryKeyField()
-    captcha_exp = peewee.BigIntegerField(default=60)  # base on second
+    captcha_exp = peewee.BigIntegerField(default=60)  # base on seconds
 
     class Meta:
         database = db
@@ -23,7 +23,7 @@ class Users(peewee.Model):
     )
 
     @classmethod
-    def create_new_user(cls, user_data: UserCreate):
+    def create_new_user(cls, user_data: UserCreate) -> None:
         user_data.password = get_hashed_password(user_data.password)
         user = Users(**dict(user_data))
         captcha_setting = CaptchaSettings().save()
