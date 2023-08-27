@@ -1,28 +1,22 @@
 from fastapi import APIRouter
-from app.models import Users
-from app.schema import UserLoginData, JwtTokensResponse
-from app.errors import EmailOrPasswordInvalid
-from app.utils import verify_password, create_jwt_token
+from fastapi import Depends
+
+from typing import Annotated
+
+from app.schema import JwtTokensResponse, UserLoginData
+from app.utils import create_jwt_token
+from app.accounts.accounts_validation import validate_user_by_email_and_password
 
 router = APIRouter()
 
 
 @router.post("/login", response_model=JwtTokensResponse, tags=["accounts"])
-def login(data: UserLoginData):
-    user = Users.select().where(Users.email == data.email)
-
-    if not user.exists():
-        raise EmailOrPasswordInvalid
-
-    password_is_correct = verify_password(
-        data.password,
-        user[0].password,
+def login(
+    validated_user: Annotated[
+        UserLoginData, Depends(validate_user_by_email_and_password)
+    ],
+):
+    return JwtTokensResponse(
+        access_token=create_jwt_token(validated_user.email),
+        refresh_token=create_jwt_token(validated_user.email, is_refresh=True),
     )
-
-    if not password_is_correct:
-        raise EmailOrPasswordInvalid
-
-    return {
-        "access_token": create_jwt_token(data.email),
-        "refresh_token": create_jwt_token(data.email, is_refresh=True),
-    }
