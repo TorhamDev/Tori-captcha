@@ -1,1 +1,1 @@
-from .validation import validate_user_by_email_and_password, Checking_existence_user
+from .validation import verify_user_pass, Checking_existence_user

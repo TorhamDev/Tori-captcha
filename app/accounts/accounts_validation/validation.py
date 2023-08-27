@@ -6,9 +6,7 @@ from app.models import Users
 from app.utils import verify_password
 
 
-def validate_user_by_email_and_password(
-    email: EmailStr, password: str
-) -> UserLoginData:
+def verify_user_pass(email: EmailStr, password: str) -> UserLoginData:
     """
     Validating user by email and verifing password
 
