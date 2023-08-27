@@ -19,7 +19,7 @@ class Users(peewee.Model):
     password = peewee.CharField()
     captcha_settings = peewee.ForeignKeyField(
         CaptchaSettings,
-        to_field='setting_id',
+        to_field="setting_id",
     )
 
     @classmethod

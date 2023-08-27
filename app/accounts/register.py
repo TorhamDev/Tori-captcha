@@ -8,7 +8,6 @@ router = APIRouter()
 
 @router.post("/register", response_model=UserDataResponse, tags=["accounts"])
 def register(data: UserCreate):
-
     user = Users.select().where(Users.email == data.email)
 
     if user.exists():

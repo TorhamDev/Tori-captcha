@@ -29,16 +29,22 @@ def verify_password(password: str, hashed_pass: str) -> bool:
     return password_context.verify(password, hashed_pass)
 
 
-def create_jwt_token(user_email: str, expires_delta: int = None, is_refresh: bool = False) -> str:
+def create_jwt_token(
+    user_email: str, expires_delta: int = None, is_refresh: bool = False
+) -> str:
     if expires_delta is not None:
         expires_delta = datetime.utcnow() + expires_delta
     else:
         if is_refresh:
             # using refresh expire time (longer time)
-            expires_delta = datetime.utcnow() + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+            expires_delta = datetime.utcnow() + timedelta(
+                minutes=REFRESH_TOKEN_EXPIRE_MINUTES
+            )
             secret_key = JWT_REFRESH_SECRET_KEY
         else:
-            expires_delta = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            expires_delta = datetime.utcnow() + timedelta(
+                minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+            )
             secret_key = JWT_SECRET_KEY
 
     to_encode = {"exp": expires_delta, "email": user_email}
@@ -47,7 +53,6 @@ def create_jwt_token(user_email: str, expires_delta: int = None, is_refresh: boo
 
 
 def get_unique_id_for_redis() -> str:
-
     while True:
         uuid = str(uuid4())
         uuid_is_exists = redis_db.get(uuid)
@@ -81,9 +86,7 @@ def make_random_captcha_question():
 
 def check_user_auth(jwt_token) -> TokenPayload:
     try:
-        payload = jwt.decode(
-            jwt_token, JWT_SECRET_KEY, algorithms=[ALGORITHM]
-        )
+        payload = jwt.decode(jwt_token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenPayload(**payload)
 
         if datetime.fromtimestamp(token_data.exp) < datetime.now():
@@ -103,7 +106,6 @@ def check_user_auth(jwt_token) -> TokenPayload:
 
 
 def get_captcha_from_redis(captcha_id: UUID) -> dict:
-
     captcha_in_redis = redis_db.get(str(captcha_id))
 
     if captcha_in_redis is None:

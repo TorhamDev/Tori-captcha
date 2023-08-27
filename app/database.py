@@ -28,8 +28,7 @@ class PeeweeConnectionState(peewee._ConnectionState):
         return self._state.get()[name]
 
 
-db = peewee.SqliteDatabase('./app.db', pragmas={
-    'journal_mode': 'wal',
-    'cache_size': -1024 * 64}
+db = peewee.SqliteDatabase(
+    "./app.db", pragmas={"journal_mode": "wal", "cache_size": -1024 * 64}
 )
 db._state = PeeweeConnectionState()

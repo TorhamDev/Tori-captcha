@@ -9,7 +9,6 @@ router = APIRouter()
 
 @router.post("/login", response_model=JwtTokensResponse, tags=["accounts"])
 def login(data: UserLoginData):
-
     user = Users.select().where(Users.email == data.email)
 
     if not user.exists():
