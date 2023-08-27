@@ -23,7 +23,7 @@ class Users(peewee.Model):
     )
 
     @classmethod
-    def create_new_user(self, user_data: UserCreate):
+    def create_new_user(cls, user_data: UserCreate):
         user_data.password = get_hashed_password(user_data.password)
         user = Users(**dict(user_data))
         captcha_setting = CaptchaSettings().save()

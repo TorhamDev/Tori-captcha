@@ -1,6 +1,6 @@
 from pydantic import EmailStr
 
-from app.schema import UserLoginData
+from app.schema import UserLoginData, UserCreate
 from app.errors import EmailOrPasswordInvalid
 from app.models import Users
 from app.utils import verify_password
@@ -30,3 +30,9 @@ def validate_user_by_email_and_password(
         raise EmailOrPasswordInvalid
 
     return UserLoginData(email=user.email, password=user.password)
+
+
+def Checking_existence_user(user_data: UserCreate) -> bool:
+    user = Users.select().where(Users.email == user_data.email)
+
+    return user.exists()
